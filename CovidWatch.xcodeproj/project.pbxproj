@@ -1378,7 +1378,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.9;
-				PRODUCT_BUNDLE_IDENTIFIER = com.gm.navcontacttracer;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.stanford.covidwatch.ios;
 				PRODUCT_NAME = "Contact Tracker";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SCHEME_FILE = "${INTERMEDIATES_OUTPUT_DIR}current_scheme.txt";
@@ -1413,7 +1413,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.9;
-				PRODUCT_BUNDLE_IDENTIFIER = com.gm.navcontacttracer;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.stanford.covidwatch.ios;
 				PRODUCT_NAME = "Contact Tracker";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SCHEME_FILE = "${INTERMEDIATES_OUTPUT_DIR}current_scheme.txt";
