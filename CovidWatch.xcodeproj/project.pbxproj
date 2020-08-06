@@ -217,7 +217,7 @@
 		2DC6439B2431FE2F008F5E4C /* QuerySnapshotProcessingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuerySnapshotProcessingOperation.swift; sourceTree = "<group>"; };
 		2DDEBF5D241A3468005BE9A8 /* PersistentContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentContainer.swift; sourceTree = "<group>"; };
 		2DDEBF5F241A369A005BE9A8 /* UIWindow+ViewControllerUtility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIWindow+ViewControllerUtility.swift"; sourceTree = "<group>"; };
-		2DFDC59F24190AB700B108F8 /* Contact Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Contact Tracker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2DFDC59F24190AB700B108F8 /* Contact Tracing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Contact Tracing.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2DFDC5AE24190AB900B108F8 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2DFDC5B824190ABA00B108F8 /* CovidWatch iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "CovidWatch iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2DFDC5BC24190ABA00B108F8 /* CovidWatch_iOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovidWatch_iOSTests.swift; sourceTree = "<group>"; };
@@ -470,7 +470,7 @@
 		2DFDC5A024190AB700B108F8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2DFDC59F24190AB700B108F8 /* Contact Tracker.app */,
+				2DFDC59F24190AB700B108F8 /* Contact Tracing.app */,
 				2DFDC5B824190ABA00B108F8 /* CovidWatch iOSTests.xctest */,
 				2DFDC5C324190ABA00B108F8 /* CovidWatch iOSUITests.xctest */,
 			);
@@ -802,7 +802,7 @@
 			);
 			name = "CovidWatch iOS";
 			productName = "COVID-19 Risk";
-			productReference = 2DFDC59F24190AB700B108F8 /* Contact Tracker.app */;
+			productReference = 2DFDC59F24190AB700B108F8 /* Contact Tracing.app */;
 			productType = "com.apple.product-type.application";
 		};
 		2DFDC5B724190ABA00B108F8 /* CovidWatch iOSTests */ = {
@@ -1379,7 +1379,7 @@
 				);
 				MARKETING_VERSION = 0.9;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.stanford.covidwatch.ios;
-				PRODUCT_NAME = "Contact Tracker";
+				PRODUCT_NAME = "Contact Tracing";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SCHEME_FILE = "${INTERMEDIATES_OUTPUT_DIR}current_scheme.txt";
 				SWIFT_OBJC_BRIDGING_HEADER = "CovidWatch iOS/Additions/Custom UI/CovidWatch iOS-Bridging-Header.h";
@@ -1399,7 +1399,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"CovidWatch iOS/Preview Content\"";
-				DEVELOPMENT_TEAM = Z4J3T249NJ;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1414,7 +1414,7 @@
 				);
 				MARKETING_VERSION = 0.9;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.stanford.covidwatch.ios;
-				PRODUCT_NAME = "Contact Tracker";
+				PRODUCT_NAME = "Contact Tracing";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SCHEME_FILE = "${INTERMEDIATES_OUTPUT_DIR}current_scheme.txt";
 				SWIFT_OBJC_BRIDGING_HEADER = "CovidWatch iOS/Additions/Custom UI/CovidWatch iOS-Bridging-Header.h";
@@ -1430,7 +1430,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W9T4878798;
+				DEVELOPMENT_TEAM = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "CovidWatch iOSTests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
@@ -1454,7 +1454,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W9T4878798;
+				DEVELOPMENT_TEAM = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "CovidWatch iOSTests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.2;

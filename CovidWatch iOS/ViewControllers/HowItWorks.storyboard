@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="7C4-bd-Y0y">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="7C4-bd-Y0y">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
@@ -11,7 +11,7 @@
         <!--Screen 1-->
         <scene sceneID="Jxb-GG-YQv">
             <objects>
-                <viewController storyboardIdentifier="HowItWorks1" id="7C4-bd-Y0y" userLabel="Screen 1" customClass="HowItWorks" customModule="Covid_Watch" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="HowItWorks1" id="7C4-bd-Y0y" userLabel="Screen 1" customClass="HowItWorks" customModule="Contact_Tracker" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="bUS-jC-Maw">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -169,7 +169,7 @@
         <!--Screen 2-->
         <scene sceneID="0o5-eR-gcO">
             <objects>
-                <viewController storyboardIdentifier="HowItWorks2" id="3Kp-hc-jfI" userLabel="Screen 2" customClass="HowItWorks" customModule="Covid_Watch" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="HowItWorks2" id="3Kp-hc-jfI" userLabel="Screen 2" customClass="HowItWorks" customModule="Contact_Tracker" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="PK0-GX-Mfq">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -320,7 +320,7 @@
         <!--Screen 3-->
         <scene sceneID="U1t-dD-X42">
             <objects>
-                <viewController storyboardIdentifier="HowItWorks3" id="UjY-uS-GAc" userLabel="Screen 3" customClass="HowItWorks" customModule="Covid_Watch" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="HowItWorks3" id="UjY-uS-GAc" userLabel="Screen 3" customClass="HowItWorks" customModule="Contact_Tracker" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="x4X-Ar-dgF">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -467,7 +467,7 @@
         <!--Screen 4-->
         <scene sceneID="gwO-kq-Nw6">
             <objects>
-                <viewController storyboardIdentifier="HowItWorks4" id="OVU-ks-FdW" userLabel="Screen 4" customClass="HowItWorks" customModule="Covid_Watch" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="HowItWorks4" id="OVU-ks-FdW" userLabel="Screen 4" customClass="HowItWorks" customModule="Contact_Tracker" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="v4Q-Gs-ZZ6">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

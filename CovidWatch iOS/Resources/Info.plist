@@ -37,13 +37,13 @@
 	<key>LocalIP</key>
 	<string></string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Safety at Work uses Bluetooth to monitor distance to other employees to warn you of danergous contacts, even when app is in the background</string>
+	<string>Contact Tracing uses Bluetooth to monitor distance to other employees to warn you of danergous contacts, even when app is in the background</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Safety at Work uses Bluetooth to monitor distance to other employees to warn you of danergous contacts</string>
+	<string>Contact Tracing uses Bluetooth to monitor distance to other employees to warn you of danergous contacts</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Safety at Work uses location to monitor possible contacts with problematic users</string>
+	<string>Contact Tracing uses location to monitor possible contacts with problematic users</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Safety at Work uses location to monitor possible contacts with problematic users</string>
+	<string>Contact Tracing uses location to monitor possible contacts with problematic users</string>
 	<key>SchemeName</key>
 	<string>covidwatch-ios-prod</string>
 	<key>UIAppFonts</key>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="jdP-cd-oNh">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="jdP-cd-oNh">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -33,7 +33,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U1f-59-MUF" userLabel="Info Area Container View">
                                 <rect key="frame" x="0.0" y="272.5" width="414" height="361"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CONTACT TRACKER" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="84h-Nk-xGp">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CONTACT TRACING" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="84h-Nk-xGp">
                                         <rect key="frame" x="8" y="25" width="398" height="47"/>
                                         <fontDescription key="fontDescription" name="GMGlobalSans-Black" family="GM Global Sans" pointSize="40"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -47,7 +47,7 @@
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Xg-g4-MMs">
                                         <rect key="frame" x="8" y="135" width="398" height="63"/>
-                                        <string key="text">Contact Tracker uses Bluetooth to anonymously detect nearby devices and log interactions with other users. The interaction is logged if it exceeds 10 minutes at a six foot distance. Your personal data is always private and never shared.</string>
+                                        <string key="text">Contact Tracing uses Bluetooth to anonymously detect nearby devices and log interactions with other users. The interaction is logged if it exceeds 10 minutes at a six foot distance. Your personal data is always private and never shared.</string>
                                         <fontDescription key="fontDescription" name="ArialMT" family="Arial" pointSize="14"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
@@ -127,10 +127,10 @@
                                 </constraints>
                             </view>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="MissionStatement" translatesAutoresizingMaskIntoConstraints="NO" id="TBY-a6-7be">
-                                <rect key="frame" x="20.5" y="709.5" width="373" height="76"/>
+                                <rect key="frame" x="20.5" y="728.5" width="373" height="38"/>
                             </imageView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo" translatesAutoresizingMaskIntoConstraints="NO" id="MUL-BY-Rr2">
-                                <rect key="frame" x="41.5" y="97.5" width="331" height="32"/>
+                                <rect key="frame" x="41.5" y="105.5" width="331" height="16"/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -195,12 +195,12 @@
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                             </imageView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo" translatesAutoresizingMaskIntoConstraints="NO" id="EbC-3C-Fai">
-                                <rect key="frame" x="41.5" y="96" width="331" height="32"/>
+                                <rect key="frame" x="41.5" y="104" width="331" height="16"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6MB-qd-tkm" userLabel="Control Area Container View">
-                                <rect key="frame" x="0.0" y="218" width="414" height="370"/>
+                                <rect key="frame" x="0.0" y="210" width="414" height="370"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CONTACT TRACKER" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Fd-Hn-qri">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CONTACT TRACING" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Fd-Hn-qri">
                                         <rect key="frame" x="8" y="25" width="398" height="47"/>
                                         <fontDescription key="fontDescription" name="GMGlobalSans-Black" family="GM Global Sans" pointSize="40"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -405,13 +405,13 @@
                                         <rect key="frame" x="0.0" y="-75" width="414" height="60"/>
                                         <subviews>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="exclamation-circle" translatesAutoresizingMaskIntoConstraints="NO" id="gqB-7O-viE">
-                                                <rect key="frame" x="20" y="-5" width="70" height="70"/>
+                                                <rect key="frame" x="20" y="12.5" width="35" height="35"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="gqB-7O-viE" secondAttribute="height" multiplier="1:1" id="SNO-sm-HwH"/>
                                                 </constraints>
                                             </imageView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You may have been exposed to COVID-19." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LrB-hV-3MO">
-                                                <rect key="frame" x="100" y="22" width="306" height="16"/>
+                                                <rect key="frame" x="65" y="22" width="341" height="16"/>
                                                 <fontDescription key="fontDescription" name="ArialMT" family="Arial" pointSize="14"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
@@ -660,12 +660,12 @@
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                             </imageView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo" translatesAutoresizingMaskIntoConstraints="NO" id="G4M-0K-6Zv">
-                                <rect key="frame" x="41.5" y="97.5" width="331" height="32"/>
+                                <rect key="frame" x="41.5" y="105.5" width="331" height="16"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yvT-rC-Cvx">
                                 <rect key="frame" x="0.0" y="319.5" width="414" height="257"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CONTACT TRACKER" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WI4-T0-Kxm">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CONTACT TRACING" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WI4-T0-Kxm">
                                         <rect key="frame" x="8" y="25" width="398" height="47"/>
                                         <fontDescription key="fontDescription" name="GMGlobalSans-Black" family="GM Global Sans" pointSize="40"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -751,7 +751,7 @@
                                 </constraints>
                             </view>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="MissionStatement" translatesAutoresizingMaskIntoConstraints="NO" id="jTJ-8x-jE5">
-                                <rect key="frame" x="20.5" y="701" width="373" height="76"/>
+                                <rect key="frame" x="20.5" y="720" width="373" height="38"/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -798,12 +798,12 @@
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                             </imageView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo" translatesAutoresizingMaskIntoConstraints="NO" id="sD3-Gb-29i">
-                                <rect key="frame" x="41.5" y="97.5" width="331" height="32"/>
+                                <rect key="frame" x="41.5" y="105.5" width="331" height="16"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4Gb-JU-DAB">
                                 <rect key="frame" x="0.0" y="258.5" width="414" height="379"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CONTACT TRACKER" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hXU-HL-Acd">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CONTACT TRACING" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hXU-HL-Acd">
                                         <rect key="frame" x="8" y="25" width="398" height="47"/>
                                         <fontDescription key="fontDescription" name="GMGlobalSans-Black" family="GM Global Sans" pointSize="40"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -897,7 +897,7 @@
                                 </constraints>
                             </view>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="MissionStatement" translatesAutoresizingMaskIntoConstraints="NO" id="MKu-DN-a3S">
-                                <rect key="frame" x="20.5" y="746" width="373" height="76"/>
+                                <rect key="frame" x="20.5" y="765" width="373" height="38"/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -932,6 +932,10 @@
             <point key="canvasLocation" x="2633" y="-413"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="jNv-PO-R4J"/>
+        <segue reference="dpf-vq-j1Z"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <image name="ContactTrackerBackground" width="376" height="739"/>
         <image name="Logo" width="16" height="16"/>
@@ -958,8 +962,4 @@
             <color red="0.54509803921568623" green="0.77254901960784317" blue="0.24705882352941178" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
-    <inferredMetricsTieBreakers>
-        <segue reference="Dkc-Iy-pLd"/>
-        <segue reference="dpf-vq-j1Z"/>
-    </inferredMetricsTieBreakers>
 </document>
