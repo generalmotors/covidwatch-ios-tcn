@@ -12,7 +12,7 @@ extension TimeInterval {
     public static let oldestSignedReportsToFetch: TimeInterval = 60*60*24*7*2
     
     // Fetch new signed reports every 6 hours at the earliest
-    public static let minimumBackgroundFetchInterval: TimeInterval = 60*60*6
+    public static let minimumBackgroundFetchInterval: TimeInterval = 60*1
 }
 
 extension Firestore {

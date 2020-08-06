@@ -5,7 +5,6 @@
 import Foundation
 import Firebase
 import CoreData
-import os.log
 
 class SignedReportsDownloadOperation: Operation {
     
@@ -23,7 +22,7 @@ class SignedReportsDownloadOperation: Operation {
     
     override func main() {
         let semaphore = DispatchSemaphore(value: 0)
-        os_log("Downloading signed reports...", log: .app)
+        LogManager.sharedManager.writeLog(entry: LogEntry(source: self, message: "Downloading signed reports..."))
         self.db.collection(Firestore.Collections.signedReports)
             .whereField(Firestore.Fields.timestamp, isGreaterThan: Timestamp(date: self.sinceDate))
             // .whereField(Firestore.Fields.isAuthenticatedByHealthOrganization, isEqualTo: true)
@@ -34,11 +33,11 @@ class SignedReportsDownloadOperation: Operation {
                 guard let self = self else { return }
                 if let error = error {
                     self.error = error
-                    os_log("Downloading signed reports failed: %@", log: .app, type: .error, error as CVarArg)
+                    LogManager.sharedManager.writeLog(entry: LogEntry(source: self, level: .error, message: "Downloading signed reports failed: \(error)"))
                     return
                 }
                 guard let querySnapshot = querySnapshot else { return }
-                os_log("Downloaded %d signed report(s)", log: .app, querySnapshot.count)
+                LogManager.sharedManager.writeLog(entry: LogEntry(source: self, message: "Downloaded \(querySnapshot.count) signed report(s)"))
                 self.querySnapshot = querySnapshot
         }
         if semaphore.wait(timeout: .now() + 20) == .timedOut {

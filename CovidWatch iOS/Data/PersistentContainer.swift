@@ -6,13 +6,10 @@
 import Foundation
 import CoreData
 import UIKit
-import os.log
 
 public class PersistentContainer: NSPersistentContainer {
     
     static let modelName = "CovidWatch"
-    
-    static let log = OSLog(subsystem: "org.covidwatch", category: String(describing: PersistentContainer.self))
     
     public static var shared = PersistentContainer(name: modelName)
     
@@ -48,18 +45,9 @@ public class PersistentContainer: NSPersistentContainer {
                 
         self.backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask { [weak self] in
             guard let self = self else { return }
-            os_log(
-                "Did expire background task=%d",
-                log: PersistentContainer.log,
-                type: .info,
-                self.backgroundTaskIdentifier?.rawValue ?? 0
-            )
+            LogManager.sharedManager.writeLog(entry: LogEntry(source: self, level: .info, message: "Did expire background task=\(self.backgroundTaskIdentifier?.rawValue ?? 0)"))
         }
-        os_log(
-            "Loading persistent stores background task=%d...",
-            log: PersistentContainer.log,
-            self.backgroundTaskIdentifier?.rawValue ?? 0
-        )
+        LogManager.sharedManager.writeLog(entry: LogEntry(source: self, message: "Loading persistent stores background task=\(self.backgroundTaskIdentifier?.rawValue ?? 0)..."))
         container.loadPersistentStores(completionHandler: { (_, error) in
             defer {
                 if let identifier = self.backgroundTaskIdentifier {
@@ -70,21 +58,13 @@ public class PersistentContainer: NSPersistentContainer {
                 container.loadCompletionHandlers.forEach { $0(error) }
             }
             if let error = error {
-                os_log(
-                    "Loading persistent stores failed: %@",
-                    log: PersistentContainer.log,
-                    type: .error,
-                    error as CVarArg
-                )
+                LogManager.sharedManager.writeLog(entry: LogEntry(source: self, level: .error, message: "Loading persistent stores failed: \(error)"))
                 container.loadError = error
                 return
             }
             container.isLoaded = true
-            os_log(
-                "Loading persistent stores completed",
-                log: PersistentContainer.log
-            )
-            
+            LogManager.sharedManager.writeLog(entry: LogEntry(source: self, message: "Loading persistent stores completed"))
+
             container.viewContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
             container.viewContext.automaticallyMergesChangesFromParent = true
         })
@@ -110,12 +90,7 @@ public class PersistentContainer: NSPersistentContainer {
                 try fileManager.removeItem(atPath: walPath)
             }
         } catch {
-            os_log(
-                "Deleting data failed: %@",
-                log: PersistentContainer.log,
-                type: .error,
-                error as CVarArg
-            )
+            LogManager.sharedManager.writeLog(entry: LogEntry(source: self, level: .error, message: "Deleting data failed: \(error)"))
         }
     }
     

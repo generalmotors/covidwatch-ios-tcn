@@ -3,11 +3,10 @@
 //
 
 import Foundation
-import TCNClient
 
 extension SignedReport {
     
-    func configure(with tcnSignedReport: TCNClient.SignedReport) {
+    func configure(with tcnSignedReport: TCNSignedReport) {
         memoType = Int16(tcnSignedReport.report.memoType.rawValue)
         memoData = tcnSignedReport.report.memoData
         startIndex = Int16(tcnSignedReport.report.startIndex)

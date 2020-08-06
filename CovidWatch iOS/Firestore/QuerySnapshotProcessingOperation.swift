@@ -5,8 +5,6 @@
 import Foundation
 import Firebase
 import CoreData
-import os.log
-import TCNClient
 
 // swiftlint:disable:next todo
 // TODO: split this operation into an add to core data and a process signed reports operation
@@ -59,24 +57,14 @@ class QuerySnapshotProcessingOperation: Operation {
                             memoType: MemoType(rawValue: memoType
                                 ) ?? MemoType.CovidWatchV1, memoData: memoData)
                         
-                        let signedReport = TCNClient.SignedReport(report: report, signatureBytes: signatureBytes)
+                        let signedReport = TCNSignedReport(report: report, signatureBytes: signatureBytes)
                         
                         let signatureBytesBase64EncodedString = signedReport.signatureBytes.base64EncodedString()
                         do {
                             _ = try signedReport.verify()
-                            os_log(
-                                "Source integrity verification for signed report (%@) succeeded",
-                                log: .app,
-                                signatureBytesBase64EncodedString
-                            )
+                            LogManager.sharedManager.writeLog(entry: LogEntry(source: self, message: "Source integrity verification for signed report (\(signatureBytesBase64EncodedString)) succeeded"))
                         } catch {
-                            os_log(
-                                "Source integrity verification for signed report (%@) failed: %@",
-                                log: .app,
-                                type: .error,
-                                signatureBytesBase64EncodedString,
-                                error as CVarArg
-                            )
+                            LogManager.sharedManager.writeLog(entry: LogEntry(source: self, level: .error, message: "Source integrity verification for signed report (\(signatureBytesBase64EncodedString) failed: \(error)"))
                             return
                         }
                         
@@ -91,12 +79,7 @@ class QuerySnapshotProcessingOperation: Operation {
                         
                         let identifiers: [Data] = recomputedTemporaryContactNumbers.compactMap({ $0.bytes })
                         
-                        os_log(
-                            "Marking %d temporary contact numbers(s) as potentially infectious=%d ...",
-                            log: .app,
-                            identifiers.count,
-                            true
-                        )
+                        LogManager.sharedManager.writeLog(entry: LogEntry(source: self, message: "Marking \(identifiers.count) temporary contact numbers(s) as potentially infectious=true ..."))
                         
                         var allUpdatedObjectIDs = [NSManagedObjectID]()
                         try identifiers.chunked(into: 300000).forEach { (identifiers) in
@@ -122,21 +105,13 @@ class QuerySnapshotProcessingOperation: Operation {
                             )
                         }
                         
-                        os_log(
-                            "Marked %d temporary contact number(s) as potentially infectious=%d",
-                            log: .app,
-                            identifiers.count,
-                            true
-                        )
+                        LogManager.sharedManager.writeLog(entry: LogEntry(source: self, message: "Marked \(identifiers.count) temporary contact number(s) as potentially infectious=true"))
                     }
                 }
             } catch {
-                os_log(
-                    "Marking temporary contact number(s) as potentially infectious=%d failed: %@",
-                    log: .app,
-                    type: .error,
-                    true, error as CVarArg
-                )
+                if let self = self {
+                    LogManager.sharedManager.writeLog(entry: LogEntry(source: self, level: .error, message: "Marking temporary contact number(s) as potentially infectious=true failed: \(error)"))
+                }
             }
         }
     }

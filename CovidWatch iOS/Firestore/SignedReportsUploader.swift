@@ -4,10 +4,9 @@
 
 import Foundation
 import CoreData
-import os.log
 import Firebase
 
-open class SignedReportsUploader: NSObject, NSFetchedResultsControllerDelegate {
+open class SignedReportsUploader: NSObject, NSFetchedResultsControllerDelegate, URLSessionDataDelegate {
     
     private var fetchedResultsController: NSFetchedResultsController<SignedReport>
     
@@ -32,7 +31,7 @@ open class SignedReportsUploader: NSObject, NSFetchedResultsControllerDelegate {
             try self.fetchedResultsController.performFetch()
             self.uploadSignedReportsIfNeeded()
         } catch {
-            os_log("Fetched results controller perform fetch failed: %@", log: .app, type: .error, error as CVarArg)
+            LogManager.sharedManager.writeLog(entry: LogEntry(source: self, level: .error, message: "Fetched results controller perform fetch failed: \(error)"))
         }
     }
     
@@ -50,11 +49,7 @@ open class SignedReportsUploader: NSObject, NSFetchedResultsControllerDelegate {
 
             let signatureBytesBase64EncodedString = signedReport.signatureBytes?.base64EncodedString() ?? ""
             
-            os_log(
-                "Uploading signed report (%@)...",
-                log: .app,
-                signatureBytesBase64EncodedString
-            )
+            LogManager.sharedManager.writeLog(entry: LogEntry(source: self, message: "Uploading signed report (\(signatureBytesBase64EncodedString))..."))
             signedReport.uploadState = UploadState.uploading.rawValue
 
             // get url to submit to
@@ -77,12 +72,7 @@ open class SignedReportsUploader: NSObject, NSFetchedResultsControllerDelegate {
                 encoder.dataEncodingStrategy = .base64
 
                 guard let uploadData = try? encoder.encode(reportUpload) else {
-                    os_log(
-                        "Failed to encode signed report (%@) failed: %@",
-                        log: .app,
-                        type: .error,
-                        "\(reportUpload)"
-                    )
+                    LogManager.sharedManager.writeLog(entry: LogEntry(source: self, level: .error, message: "Failed to encode signed report (\(reportUpload))"))
                     signedReport.uploadState = UploadState.notUploaded.rawValue
                     return // failed to encode so bail out
                 }
@@ -91,23 +81,13 @@ open class SignedReportsUploader: NSObject, NSFetchedResultsControllerDelegate {
                 request.httpMethod = "POST"
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-                URLSession.uploadTask(with: request, from: uploadData) { result in
+                URLSession.uploadTask(with: request, from: uploadData, delegate: self) { result in
                     switch result {
                     case .failure(let error):
-                        os_log(
-                            "Uploading signed report (%@) failed: %@",
-                            log: .app,
-                            type: .error,
-                            signatureBytesBase64EncodedString,
-                            error as CVarArg
-                        )
+                        LogManager.sharedManager.writeLog(entry: LogEntry(source: self, level: .error, message: "Uploading signed report (\(signatureBytesBase64EncodedString)) failed: \(error)"))
                         signedReport.uploadState = UploadState.notUploaded.rawValue
                     case .success(let (response, data)):
-                        os_log(
-                            "Uploaded signed report (%@)",
-                            log: .app,
-                            signatureBytesBase64EncodedString
-                        )
+                        LogManager.sharedManager.writeLog(entry: LogEntry(source: self, message: "Uploaded signed report (\(signatureBytesBase64EncodedString))"))
                         signedReport.uploadState = UploadState.uploaded.rawValue
 
                         if let mimeType = response.mimeType,
@@ -125,6 +105,13 @@ open class SignedReportsUploader: NSObject, NSFetchedResultsControllerDelegate {
         self.uploadSignedReportsIfNeeded()
     }
     
+    
+    //MARK: URLSessionDataTask functions
+    
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, willCacheResponse proposedResponse: CachedURLResponse, completionHandler: @escaping (CachedURLResponse?) -> Void) {
+        completionHandler(nil)
+    }
+    
 }
 
 struct ReportUpload: Codable {
@@ -140,8 +127,9 @@ struct ReportUpload: Codable {
 typealias HTTPResult = Result<(URLResponse, Data), Error>
 
 extension URLSession {
-    static func uploadTask(with: URLRequest, from: Data, result: @escaping (HTTPResult) -> Void) -> URLSessionDataTask {
-        return URLSession.shared.uploadTask(with: with, from: from) { data, response, error in
+    static func uploadTask(with: URLRequest, from: Data, delegate: URLSessionDataDelegate, result: @escaping (HTTPResult) -> Void) -> URLSessionDataTask {
+        let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: OperationQueue.main)
+        return session.uploadTask(with: with, from: from) { data, response, error in
             if let error = error {
                 result(.failure(error))
                 return

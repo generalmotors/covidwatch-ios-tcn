@@ -27,10 +27,8 @@ class BluetoothPermission: NSObject, CBCentralManagerDelegate {
     var isAuthorized: Bool {
         if #available(iOS 13.1, *) {
             return CBCentralManager.authorization == .allowedAlways
-        } else if #available(iOS 13.0, *) {
-            return self.centralManager.authorization == .allowedAlways
         } else {
-            return CBPeripheralManager.authorizationStatus() == .authorized
+            return self.centralManager.authorization == .allowedAlways
         }
     }
 

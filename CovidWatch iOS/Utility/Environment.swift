@@ -30,19 +30,7 @@ func getLocalFirebaseHost() -> String {
 }
 
 func getAPIUrl(_ scheme: AppScheme) -> String {
-    func getLocalURL() -> String {
-        let localProtocol = "http://"
-        let localPort = 5001
-        let projectSlug = "tagstwo-431e3/us-central1"
-        return "\(localProtocol)\(getLocalIP()):\(localPort)/\(projectSlug)"
-    }
-
-    switch scheme {
-    case .production:
-        return "https://us-central1-tagstwo-431e3.cloudfunctions.net"
-    default:
-        return getLocalURL()
-    }
+    return "https://us-central1-tagstwo-431e3.cloudfunctions.net"
 }
 
 func getAppScheme() -> AppScheme {

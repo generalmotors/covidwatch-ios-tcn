@@ -8,7 +8,7 @@
 
 import UIKit
 
-class Home: UIViewController {
+class Home: UIViewController, OverlayViewCallbackDelegate {
     @IBOutlet weak var header: UIView!
     var img = UIImageView(image: UIImage(named: "family"))
     var largeText: LargeText!
@@ -23,7 +23,14 @@ class Home: UIViewController {
     var observer: NSObjectProtocol?
     var bluetoothPermission: BluetoothPermission?
     let globalState = UserDefaults.shared
-    
+
+	// Overlays
+	var debuggingOverlay: ViewOverlay?
+	var logTextView: UITextView?
+	var logUpdateTimer: Timer?
+	var lastLogEntryArray = [LogEntry]()
+	var logString = ""
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.spreadButton = Button(self, text: "Share the app", subtext: "It works best when everyone uses it.")
@@ -65,6 +72,9 @@ class Home: UIViewController {
             self?.checkNotificationPersmission()
         }
         self.checkNotificationPersmission()
+
+		setupOverlays()
+		LogManager.sharedManager.writeLog(entry: LogEntry(source: self, message: "App set up and running"))
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -264,11 +274,100 @@ class Home: UIViewController {
         }
 //        Draw the menu last, so it's registered as "above" all other components in the layout hierarchy
         self.menu.draw()
-        
+
+		if let overlayView = debuggingOverlay
+		{
+			self.view.bringSubviewToFront(overlayView)
+		}
+
         globalState.isFirstTimeUser = false
         
     }
     
+	// MARK: Begin New Contact Tracing Code
+
+	private func setupOverlays()
+	{
+
+		debuggingOverlay = ViewOverlay(forParentViewController: self, with: ViewOverlayTabPosition.rightEdgeCenter, contentType: ViewOverlayType.list, andTitle: "Debug")
+		debuggingOverlay?.tabBackgroundColor = AppConfigurationManager.debuggingTabBackgroundColor
+		debuggingOverlay?.tabTitleColor = AppConfigurationManager.debuggingTabTitleColor
+		debuggingOverlay?.contentBackgroundColor = AppConfigurationManager.debuggingTabContentBackgroundColor
+		debuggingOverlay?.delegate = self
+		debuggingOverlay?.show()
+
+		if let loggingContent = debuggingOverlay?.contentView
+		{
+			let contentFrame = loggingContent.frame
+			let buttonBufferArea = Int((contentFrame.size.width - (CGFloat(AppConfigurationManager.debuggingClearButtonWidth + AppConfigurationManager.debuggingPauseButtonWidth))) / 3)
+			let clearButton = UIButton(frame: CGRect(x: buttonBufferArea, y: Int(contentFrame.size.height) - AppConfigurationManager.debuggingContentMarginHeight - AppConfigurationManager.debuggingClearButtonHeight, width: AppConfigurationManager.debuggingClearButtonWidth, height: AppConfigurationManager.debuggingClearButtonHeight))
+			let pauseButton = UIButton(frame: CGRect(x: buttonBufferArea * 2 + AppConfigurationManager.debuggingClearButtonWidth, y: Int(contentFrame.size.height) - AppConfigurationManager.debuggingContentMarginHeight - AppConfigurationManager.debuggingPauseButtonHeight, width: AppConfigurationManager.debuggingPauseButtonWidth, height: AppConfigurationManager.debuggingPauseButtonHeight))
+			logTextView = UITextView(frame: CGRect(x: 0, y: 0, width: Int(contentFrame.size.width), height: Int(contentFrame.size.height) - (AppConfigurationManager.debuggingContentMarginHeight * 2 + AppConfigurationManager.debuggingClearButtonHeight)))
+			clearButton.backgroundColor = AppConfigurationManager.debuggingClearButtonBackgroundColor
+			clearButton.setTitleColor(AppConfigurationManager.debuggingClearButtonTextColor, for: .normal)
+			clearButton.setTitle(NSLocalizedString("Clear", comment: ""), for: .normal)
+			clearButton.addTarget(self, action: #selector(Home.clearLogs), for: .touchUpInside)
+			pauseButton.backgroundColor = AppConfigurationManager.debuggingPauseButtonBackgroundColor
+			pauseButton.setTitleColor(AppConfigurationManager.debuggingPauseButtonTextColor, for: .normal)
+			pauseButton.setTitle(NSLocalizedString("Pause", comment: ""), for: .normal)
+			pauseButton.addTarget(self, action: #selector(Home.pauseLogs), for: .touchUpInside)
+			logTextView?.backgroundColor = AppConfigurationManager.debuggingTabContentBackgroundColor
+			logTextView?.textColor = AppConfigurationManager.debuggingLogTextColor
+			logTextView?.layoutManager.allowsNonContiguousLayout = false
+			loggingContent.addSubview(clearButton)
+			loggingContent.addSubview(pauseButton)
+			loggingContent.addSubview(logTextView!)
+		}
+	}
+
+	@objc func clearLogs()
+	{
+	}
+
+	@objc func pauseLogs()
+	{
+	}
+
+	// ViewOverlay Delegate methods
+
+	func overlayViewDisplayed(_ title: String!)
+	{
+		if title == "Debug"
+		{
+			logUpdateTimer = Timer.scheduledTimer(withTimeInterval: AppConfigurationManager.debuggingLogDisplayUpdateDelay, repeats: true)
+			{
+				timer in
+				let logManager = LogManager.sharedManager
+				let logEntries = logManager.getLogEntries()
+				let differential = logEntries.count - self.lastLogEntryArray.count
+				if differential > 0
+				{
+					for index in self.lastLogEntryArray.count..<logEntries.count
+					{
+						let nextEntry = logEntries[index]
+						self.lastLogEntryArray.append(nextEntry)
+						self.logString.append(nextEntry.logMessage + "\n\n")
+					}
+					DispatchQueue.main.async
+					{
+						self.logTextView?.text = self.logString
+						let stringLength:Int = self.logTextView!.text.count
+						self.logTextView?.scrollRangeToVisible(NSMakeRange(stringLength-1, 0))
+					}
+				}
+			}
+		}
+	}
+
+	func overlayViewContracted(_ title: String!)
+	{
+		if let logTimer = logUpdateTimer
+		{
+			logTimer.invalidate()
+			logUpdateTimer = nil
+		}
+	}
+
 }
 
 // MARK: - Protocol HeaderViewControllerDelegate
