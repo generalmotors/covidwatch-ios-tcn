@@ -17,13 +17,7 @@ protocol Request {
 
 extension Request {
     var scheme: String { "https" }
-    var host: String {
-        var host = ""
-        if let hostValue = Bundle.main.infoDictionary?["API_BASE_URL"] as? String {
-            host = hostValue
-        }
-        return host
-    }
+    var host: String { Bundle.main.infoDictionary?["API_BASE_URL"] as! String }
 
     var headers: [String: String] {
         var ct_key = ""

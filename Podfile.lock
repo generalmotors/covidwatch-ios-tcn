@@ -287,12 +287,15 @@ PODS:
   - PromisesObjC (1.2.9)
 
 DEPENDENCIES:
+  - AppCenter
+  - AppCenter/Distribute
   - Firebase/Firestore
   - FirebaseFirestoreSwift
 
 SPEC REPOS:
   trunk:
     - abseil
+    - AppCenter
     - BoringSSL-GRPC
     - Firebase
     - FirebaseCore
@@ -310,6 +313,7 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   abseil: 6c8eb7892aefa08d929b39f9bb108e5367e3228f
+  AppCenter: 976294db3f288d82204afc6ad71790d71be249ac
   BoringSSL-GRPC: 8edf627ee524575e2f8d19d56f068b448eea3879
   Firebase: fc4cbf6f1592636431821ef9a3c557e4dfd9f268
   FirebaseCore: feda061cb1ee6d8ad4824f4a4a8ffbcfe284f595
@@ -325,6 +329,6 @@ SPEC CHECKSUMS:
   nanopb: c43f40fadfe79e8b8db116583945847910cbabc9
   PromisesObjC: b48e0338dbbac2207e611750777895f7a5811b75
 
-PODFILE CHECKSUM: 555222d3825227b760fe293a83668e665feb5e41
+PODFILE CHECKSUM: bfb2733d4f196f31d7f05a268505bf5e41ef0701
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.9.1

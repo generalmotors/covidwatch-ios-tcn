@@ -1,12 +1,7 @@
 /*******************************************************************************
 * RegisterBeaconViewController.swift
-*
-* Title:            Contact Tracing
-* Description:        Contact Tracing Monitoring and Reporting App
-*                        This file contains the view controller for iBeacon registration screen
 * Author:            Eric Crichlow
-* Version:            1.0
-*******************************************************************************/
+ */
 
 import UIKit
 import CoreLocation
@@ -20,7 +15,7 @@ class RegisterBeaconViewController: UIViewController, BLEManagerDelegate, Contac
     
     }
     
-    func contactInRange(estimatedDistance: Double) {
+    func contactInRange(estimatedDistance: Double, contactMinDistance: Double, deviceId: UInt32) {
     
     }
     
@@ -54,17 +49,32 @@ class RegisterBeaconViewController: UIViewController, BLEManagerDelegate, Contac
         BLEManager.sharedManager.registerDelegate(delegate: self)
         BLEManager.sharedManager.startBeaconScanning()
     }
+    @IBAction func cancel(_ sender: UIButton)
+    {
+        DispatchQueue.main.async
+        {
+            self.dismiss(animated: true, completion: nil)
+        }
+    }
 
     // MARK: BLEManager Delegate
 
     func BLEBluetoothManagerLogMessage(message: String)
     {
-    
+        
     }
 
     func BLEBluetoothManagerError(error: Error)
     {
-    
+        self.statusLabel.text = "No iBeacon found"
+        Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false)
+        {
+            timer in
+            DispatchQueue.main.async
+            {
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
     }
 
     func BLEBluetoothManagerDiscoveredDevicesUpdated(devices: [CLBeacon: NSNumber])
@@ -79,7 +89,6 @@ class RegisterBeaconViewController: UIViewController, BLEManagerDelegate, Contac
             self.statusLabel.isHidden = false
             self.progressIndicator.isHidden = false
             self.progressIndicator.stopAnimating()
-            
             let major = beacon.major
             let minor = beacon.minor
             let beaconId = minor.stringValue + major.stringValue
@@ -90,7 +99,6 @@ class RegisterBeaconViewController: UIViewController, BLEManagerDelegate, Contac
                 self.registeredBeacons.append(beaconId)
                 FMPersistenceManager.sharedManager.saveValue(name: AppConfigurationManager.persistenceFieldDiscoveredBeacons, value: self.registeredBeacons, type: .Array, destination: .UserDefaults, protection: .Unsecured, lifespan: .Immortal, expiration: nil, overwrite: true)
             }
-            //submit registered beacon to the back end
             Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false)
             {
                 timer in
@@ -102,5 +110,4 @@ class RegisterBeaconViewController: UIViewController, BLEManagerDelegate, Contac
         }
     }
 }
-
 

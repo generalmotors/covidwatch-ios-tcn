@@ -12,14 +12,6 @@ import BackgroundTasks
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
-//    var tcnBluetoothService: TCNBluetoothService?
-//    var advertisedTcns = [Data]()
-//
-//    var isContactTracingEnabledObservation: NSKeyValueObservation?
-//    var isCurrentUserSickObservation: NSKeyValueObservation?
-//
-//    var currentUserExposureNotifier: CurrentUserExposureNotifier?
     
     static func getFirestore() -> Firestore {
         if getAppScheme() == .development {
@@ -73,13 +65,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let actionsAfterLoading = {
             UserDefaults.standard.register(defaults: UserDefaults.Key.registration)
-//            self.configureCurrentUserNotificationCenter()
-//            self.requestUserNotificationAuthorization(provisional: true)
-//            self.configureIsCurrentUserSickObserver()
-//            self.signedReportsUploader = SignedReportsUploader()
-//            self.currentUserExposureNotifier = CurrentUserExposureNotifier()
-//            self.configureContactTracingService()
-//            self.configureContactTracingEnabledObserver()
         }
 
         PersistentContainer.shared.load { error in
@@ -157,30 +142,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, shouldAllowExtensionPointIdentifier extensionPointIdentifier: UIApplication.ExtensionPointIdentifier) -> Bool {
         return extensionPointIdentifier != .keyboard
     }
-
-//    private func configureContactTracingEnabledObserver() {
-//        self.isContactTracingEnabledObservation = UserDefaults.standard.observe(
-//            \.isContactTracingEnabled, options: [.initial, .new]
-//        ) { [weak self] (_, change) in
-//            guard let self = self else { return }
-//            if change.newValue ?? true {
-//                self.tcnBluetoothService?.start()
-//            } else {
-//                self.tcnBluetoothService?.stop()
-//            }
-//        }
-//    }
-//
-//    private func configureIsCurrentUserSickObserver() {
-//        self.isCurrentUserSickObservation = UserDefaults.standard.observe(
-//            \.isUserSick, options: [.new]
-//        ) { [weak self] (_, change) in
-//            guard let self = self else { return }
-//            guard change.newValue == true else {
-//                return
-//            }
-//            self.generateAndUploadReport()
-//        }
-//    }
 
 }

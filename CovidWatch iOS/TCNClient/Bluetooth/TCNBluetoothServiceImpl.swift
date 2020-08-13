@@ -71,6 +71,7 @@ class TCNBluetoothServiceImpl: NSObject, CLLocationManagerDelegate
             self.connectedPeripheralIdentifiers
         )
     }
+    private var unregisteredBeacons = [String : Date]()
     
     private var foundBeacons = [String : Data]()
     
@@ -82,12 +83,11 @@ class TCNBluetoothServiceImpl: NSObject, CLLocationManagerDelegate
     
     private var peripheralManager: CBPeripheralManager?
     
-    private var unregisteredBeacons = [String : Date]()
-    
     private var tcnsForRemoteDeviceIdentifiers = [UUID : Data]()
     
     private var estimatedDistancesForRemoteDeviceIdentifiers = [UUID : Double]()
-    
+    private var contactDeviceIdForRemoteDeviceIdentifiers = [UUID : UInt32]()
+
     private var peripheralsToReadTCNFrom = Set<CBPeripheral>()
     
     private var peripheralsToWriteTCNTo = Set<CBPeripheral>()
@@ -253,13 +253,14 @@ class TCNBluetoothServiceImpl: NSObject, CLLocationManagerDelegate
         self.connectedPeripheralIdentifiers.removeAll()
         self.discoveringServicesPeripheralIdentifiers.removeAll()
         self.characteristicsBeingRead.removeAll()
-        self.unregisteredBeacons.removeAll()
         self.characteristicsBeingWritten.removeAll()
         self.peripheralsToReadTCNFrom.removeAll()
+        self.unregisteredBeacons.removeAll()
         self.peripheralsToWriteTCNTo.removeAll()
         self.shortTemporaryIdentifiersOfPeripheralsToWhichWeDidWriteTCNTo.removeAll()
         self.tcnsForRemoteDeviceIdentifiers.removeAll()
         self.estimatedDistancesForRemoteDeviceIdentifiers.removeAll()
+        self.contactDeviceIdForRemoteDeviceIdentifiers.removeAll()
         if self.centralManager?.isScanning ?? false {
             self.centralManager?.stopScan()
         }
@@ -346,6 +347,7 @@ class TCNBluetoothServiceImpl: NSObject, CLLocationManagerDelegate
         self.peripheralsToWriteTCNTo.remove(peripheral)
         self.tcnsForRemoteDeviceIdentifiers[peripheral.identifier] = nil
         self.estimatedDistancesForRemoteDeviceIdentifiers[peripheral.identifier] = nil
+        self.contactDeviceIdForRemoteDeviceIdentifiers[peripheral.identifier] = nil
         self.discoveredPeripherals.remove(peripheral)
         self.cancelConnectionIfNeeded(for: peripheral)
     }
@@ -430,7 +432,7 @@ extension TCNBluetoothServiceImpl: CBCentralManagerDelegate {
 // 06-04-20 - EGC - Adding scanning for iBeacons
     private func _startBeaconScan()
     {
-        if let uuid = UUID(uuidString: AppConfigurationManager.testBeaconUUIDString) {
+        if let uuid = UUID(uuidString: TCNConstants.BeaconUUIDString) {
             let beaconRegion = CLBeaconRegion(uuid: uuid, identifier: TCNConstants.testBeaconIdentifier)
             let beaconIdentityConstraint = CLBeaconIdentityConstraint(uuid: uuid)
             locationManager.startMonitoring(for: beaconRegion)
@@ -439,15 +441,17 @@ extension TCNBluetoothServiceImpl: CBCentralManagerDelegate {
         }
     }
 
-    func centralManager(
-        _ central: CBCentralManager,
-        didDiscover peripheral: CBPeripheral,
-        advertisementData: [String : Any],
-        rssi RSSI: NSNumber
-    ) {
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        
         // Only Android can enable advertising data in the service data field.
-        let isAndroid = ((advertisementData[CBAdvertisementDataServiceDataKey]
-            as? [CBUUID : Data])?[.tcnService] != nil)
+        let isAndroid = ((advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID : Data])?[.tcnService] != nil)
+        
+        var deviceModelId: UInt32 = 0
+        if let serviceData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data, serviceData.count >= 2 {
+            let mID = Data(serviceData[0..<2])
+
+            deviceModelId = UInt32(mID[0]) | (UInt32(mID[1]) << 8)
+        }
         
         let estimatedDistanceMeters = getEstimatedDistanceMeters(
             RSSI: RSSI.doubleValue,
@@ -456,62 +460,32 @@ extension TCNBluetoothServiceImpl: CBCentralManagerDelegate {
                 hintIsAndroid: isAndroid
             )
         )
-        self.estimatedDistancesForRemoteDeviceIdentifiers[
-            peripheral.identifier] = estimatedDistanceMeters
+        self.estimatedDistancesForRemoteDeviceIdentifiers[peripheral.identifier] = estimatedDistanceMeters
+        self.contactDeviceIdForRemoteDeviceIdentifiers[peripheral.identifier] = deviceModelId
         
-//        if #available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *) {
-//            os_log(
-//                "Central manager did discover peripheral (uuid=%@ new=%d name='%@') RSSI=%d (estimatedDistance=%.2f)",
-//                log: .bluetooth,
-//                peripheral.identifier.description,
-//                !self.discoveredPeripherals.contains(peripheral),
-//                peripheral.name ?? "",
-//                RSSI.intValue,
-//                estimatedDistanceMeters
-//            )
-//        }
-        
-//        if #available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *) {
-//            os_log(
-//                "Central manager did discover peripheral (uuid=%@ new=%d name='%@') RSSI=%d (estimatedDistance=%.2f) advertisementData=%@",
-//                log: .bluetooth,
-//                peripheral.identifier.description,
-//                !self.discoveredPeripherals.contains(peripheral),
-//                peripheral.name ?? "",
-//                RSSI.intValue,
-//                estimatedDistanceMeters,
-//                advertisementData.description
-//            )
-//        }
+//        LogManager.sharedManager.writeLog(entry: LogEntry(source: self, type: .bluetooth, message: "Central manager did discover peripheral (uuid=\(peripheral.identifier.description) new=\(!self.discoveredPeripherals.contains(peripheral)) name='\(peripheral.name ?? "")) RSSI=\(RSSI.intValue) (estimatedDistance=\(String(format: "%.2f", estimatedDistanceMeters))) advertisementData=\(advertisementData.description)"))
         
         self.discoveredPeripherals.insert(peripheral)
         
         // Did we find a TCN from the peripheral already?
         if let tcn = self.tcnsForRemoteDeviceIdentifiers[peripheral.identifier] {
-            self.didFindTCN(tcn, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[peripheral.identifier])
+            self.didFindTCN(tcn, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[peripheral.identifier], deviceId: deviceModelId)
         }
         else {
-            let isConnectable = (advertisementData[
-                CBAdvertisementDataIsConnectable] as? NSNumber)?.boolValue ?? false
+            let isConnectable = (advertisementData[CBAdvertisementDataIsConnectable] as? NSNumber)?.boolValue ?? false
             
             // Check if we can extract TCN from service data
-            if let advertisementDataServiceData = advertisementData[CBAdvertisementDataServiceDataKey]
-                as? [CBUUID : Data],
-                let serviceData = advertisementDataServiceData[.tcnService] {
+            // The service data = bridged TCN + first 4 bytes of the current TCN.
+            // When the Android bridges a TCN of nearby iOS devices, the
+            // last 4 bytes are different than the first 4 bytes.
+            if let serviceData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data, serviceData.count >= 18 {
                 
-                // The service data = bridged TCN + first 4 bytes of the current TCN.
-                // When the Android bridges a TCN of nearby iOS devices, the
-                // last 4 bytes are different than the first 4 bytes.
-                guard serviceData.count >= 16 else {
-                    return
-                }
-                
-                let tcn = Data(serviceData[0..<16])
+                let tcn = Data(serviceData[2..<18])
                 self.tcnsForRemoteDeviceIdentifiers[peripheral.identifier] = tcn
-                self.didFindTCN(tcn, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[peripheral.identifier])
+                self.didFindTCN(tcn, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[peripheral.identifier], deviceId: deviceModelId)
                 
-                if serviceData.count == 16 + 4 {
-                    let shortTemporaryIdentifier = Data(serviceData[16..<20])
+                if serviceData.count == 22 {
+                    let shortTemporaryIdentifier = Data(serviceData[18..<22])
                                     
                     // The remote device is an Android one. Write a TCN to it,
                     // because it can not find the TCN of this iOS device while this
@@ -770,7 +744,7 @@ extension TCNBluetoothServiceImpl: CBPeripheralDelegate {
             }
             let tcn = Data(value[0..<16])
             self.tcnsForRemoteDeviceIdentifiers[peripheral.identifier] = tcn
-            self.didFindTCN(tcn, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[peripheral.identifier])
+            self.didFindTCN(tcn, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[peripheral.identifier], deviceId: self.contactDeviceIdForRemoteDeviceIdentifiers[peripheral.identifier])
         }
         catch {
             LogManager.sharedManager.writeLog(entry: LogEntry(source: self, type: .bluetooth, level: .error, message: "Processing value failed=\(String(describing: error))"))
@@ -875,8 +849,11 @@ extension TCNBluetoothServiceImpl: CBPeripheralManagerDelegate {
     }
     
     private func startAdvertising() {
+        ProfileMapping.shared.loadDefaultPhoneModels()
+        let modelID = ProfileMapping.shared.deviceModelNumber
         let advertisementData: [String : Any] = [
             CBAdvertisementDataServiceUUIDsKey : [CBUUID.tcnService],
+            CBAdvertisementDataLocalNameKey : modelID,
             // iOS 13.4 (and older) does not support advertising service data
             // for third-party apps.
             // CBAdvertisementDataServiceDataKey : self.generateTCN()
@@ -926,7 +903,7 @@ extension TCNBluetoothServiceImpl: CBPeripheralManagerDelegate {
                 }
                 let tcn = Data(value[0..<16])
                 self.tcnsForRemoteDeviceIdentifiers[request.central.identifier] = tcn
-                self.didFindTCN(tcn, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[request.central.identifier])
+                self.didFindTCN(tcn, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[request.central.identifier], deviceId: self.contactDeviceIdForRemoteDeviceIdentifiers[request.central.identifier])
             }
             catch {
                 var result = CBATTError.invalidPdu
@@ -971,17 +948,36 @@ extension TCNBluetoothServiceImpl: CBPeripheralManagerDelegate {
         LogManager.sharedManager.writeLog(entry: LogEntry(source: self, type: .bluetooth, message: "TCNBluetoothServiceUmpl LocationManager failed with error: \(error.localizedDescription)"))
     }
 
-       func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion)
+    func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion)
     {
         for beacon in beacons
         {
             let estimatedDistanceMeters = getEstimatedDistanceMeters(RSSI: Double(beacon.rssi))
             self.estimatedDistancesForRemoteDeviceIdentifiers[beacon.uuid] = estimatedDistanceMeters
             
-            //generate mock tcn of beacon
+            //generate beaconId from major and minor
             let major = beacon.major
             let minor = beacon.minor
             let beaconId = minor.stringValue + major.stringValue
+            //determine beacon deviceId
+            var deviceId: UInt32 = 0
+            let beaconUuid = beacon.uuid.uuidString
+            switch(beaconUuid) {
+            case TCNConstants.BeaconUUIDString:
+                deviceId = UInt32(10)
+                break
+            case TCNConstants.LOBeaconUUIDString:
+                deviceId = UInt32(11)
+                break
+            case TCNConstants.IOSBeaconUUIDString:
+                deviceId = UInt32(12)
+                break
+            case TCNConstants.HIDBeaconUUIDString:
+                deviceId = UInt32(13)
+                break
+            default:
+                deviceId = UInt32(0)
+            }
             //check if beacon is a registered beacon
             if FMPersistenceManager.sharedManager.checkForValue(name: AppConfigurationManager.persistenceFieldDiscoveredBeacons, from: .UserDefaults)
             {
@@ -995,26 +991,25 @@ extension TCNBluetoothServiceImpl: CBPeripheralManagerDelegate {
                         //skip if beacon detected is our registered beacon
                         LogManager.sharedManager.writeLog(entry: LogEntry(source: self, type: .bluetooth, message: "Skipping registered beacon with id: \(beaconId)"))
                         continue
+                        }
                     }
-                
                 }
-            }
                 if let foundTcn = self.foundBeacons[beaconId] {
                     
                     // Already know the TCN for this beacon, show it as found
                      self.discoveredBeacons.insert(beacon)
                    // Did we find a TCN from the beacon already?
-                    self.didFindTCN(foundTcn, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[beacon.uuid])
+                    self.didFindTCN(foundTcn, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[beacon.uuid], deviceId: deviceId)
                     continue
                     
                 } else {
                     //check if beacon is registered, if not wait 10
                     if(self.unregisteredBeacons[beaconId] == nil) {
-                        self.retrieveBeaconTCN(beaconId: beaconId, beacon: beacon)
+                        self.retrieveBeaconTCN(beaconId: beaconId, beacon: beacon, deviceId: deviceId)
                     } else {
                         if let lastCheck = self.unregisteredBeacons[beaconId]{
                             if((lastCheck.addingTimeInterval(TimeInterval(TCNConstants.unregisteredBeaconCheckInterval))) <= Date()) {
-                                self.retrieveBeaconTCN(beaconId: beaconId, beacon: beacon)
+                                self.retrieveBeaconTCN(beaconId: beaconId, beacon: beacon, deviceId: deviceId)
                         }
                     }
                 }
@@ -1022,7 +1017,7 @@ extension TCNBluetoothServiceImpl: CBPeripheralManagerDelegate {
         }
     }
     
-    func retrieveBeaconTCN(beaconId : String, beacon : CLBeacon) {
+    func retrieveBeaconTCN(beaconId : String, beacon : CLBeacon, deviceId: UInt32) {
         LogManager.sharedManager.writeLog(entry: LogEntry(source: self, type: .transmission, message: "Requesting TCN for beacon with id: \(beaconId)"))
         let getTcnReqest = GetTCNRequest(beaconId: beaconId)
         Network.request(router: getTcnReqest) { (result: Result<GetTCNModel, Error>) in
@@ -1036,7 +1031,8 @@ extension TCNBluetoothServiceImpl: CBPeripheralManagerDelegate {
                 LogManager.sharedManager.writeLog(entry: LogEntry(source: self, type: .reception, message: "Recieve beacon TCN from server:  \(tcnBase64)"))
                 //self.discoveredBeacons.insert(beacon)
                 self.foundBeacons[beaconId] = tcnData
-                self.didFindTCN(tcnData, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[beacon.uuid])
+                self.didFindTCN(tcnData, estimatedDistance: self.estimatedDistancesForRemoteDeviceIdentifiers[beacon.uuid], deviceId: deviceId)
+                self.unregisteredBeacons[beaconId] = nil
             } catch {
                 LogManager.sharedManager.writeLog(entry: LogEntry(source: self, type: .error, message: "Error retrieve beacon TCN from server"))
                 
@@ -1051,12 +1047,9 @@ extension TCNBluetoothServiceImpl: CBPeripheralManagerDelegate {
       
       
       if UIApplication.shared.applicationState == .active {
-       // print("App is foregrounded. New location is %@", mostRecentLocation)
-        //print("App is foregrounded.")
+        //foreground
       } else {
-       // print("App is backgrounded. New location is %@", mostRecentLocation)
-        //print("App is backgrounded.")
+        //background
       }
     }
 }
-

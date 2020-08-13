@@ -1,24 +1,44 @@
 /*******************************************************************************
 * IntroScreenViewController.swift
 *
-* Title:			Contact Tracing
-* Description:		Contact Tracing Monitoring and Reporting App
-*						This file contains the view controller for the intro screen
 * Author:			Eric Crichlow
-* Version:			1.0
-********************************************************************************
-*	05/13/20		*	EGC	*	File creation date
-*******************************************************************************/
+*/
 
 import UIKit
+extension UITextField {
+    func addDoneCancelToolbar(onDone: (target: Any, action: Selector)? = nil, onCancel: (target: Any, action: Selector)? = nil) {
+       // let onCancel = onCancel ?? (target: self, action: #selector(cancelButtonTapped))
+        let onDone = onDone ?? (target: self, action: #selector(doneButtonTapped))
+
+        let toolbar: UIToolbar = UIToolbar()
+        toolbar.barStyle = .default
+        toolbar.items = [
+           // UIBarButtonItem(title: "Cancel", style: .plain, target: onCancel.target, action: onCancel.action),
+            UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil),
+            UIBarButtonItem(title: "Done", style: .done, target: onDone.target, action: onDone.action)
+        ]
+        toolbar.sizeToFit()
+
+        self.inputAccessoryView = toolbar
+    }
+
+    // Default actions:
+    @objc func doneButtonTapped() { self.resignFirstResponder() }
+   // @objc func cancelButtonTapped() { self.resignFirstResponder() }
+}
+
 import CoreLocation
 import CoreBluetooth
 
 class IntroScreenViewController: UIViewController {
 
     @IBOutlet weak var permissionsButton: UIButton!
-    @IBOutlet weak var phoneTextField: UITextField!
+    @IBOutlet weak var phoneTextField: UITextField! {
+        didSet { phoneTextField?.addDoneCancelToolbar() }
+    }
+    
     @IBOutlet weak var containerView: UIView!
+    let numberToolbar: UIToolbar = UIToolbar()
 
     private var centralManager: CBCentralManager!
     private var bluetoothAuthorization: CBManagerAuthorization = .notDetermined {
@@ -36,6 +56,7 @@ class IntroScreenViewController: UIViewController {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
+    
     override func viewDidLoad()
     {
         super.viewDidLoad()

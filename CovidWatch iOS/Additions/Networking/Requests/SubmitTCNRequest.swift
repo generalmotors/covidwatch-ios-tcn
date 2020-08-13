@@ -3,7 +3,6 @@
 //  CovidWatch iOS
 //
 //  Created by Zane Schepke on 6/23/20.
-//  Copyright © 2020 IZE. All rights reserved.
 //
 
 struct SubmitTCNRequest: Request {

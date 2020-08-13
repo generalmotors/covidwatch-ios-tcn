@@ -1,10 +1,7 @@
 /*******************************************************************************
 * LogManager.swift
 * Author:			Eric Crichlow
-* Version:			1.0
-********************************************************************************
-*	04/14/19		*	EGC	*	File creation date
-*******************************************************************************/
+*/
 
 import Foundation
 
@@ -67,7 +64,7 @@ public class LogManager
         case debug = 3
 	}
 
-	private var logEntries = [LogEntry]()
+	//private var logEntries = [LogEntry]()
 
 	public static let sharedManager = LogManager()
 
@@ -137,35 +134,7 @@ public class LogManager
 			// Remote service logging is project-specific
 		}
 
-		logEntries.append(entry)
-	}
-
-	public func clearLogs()
-	{
-		logEntries.removeAll()
-	}
-
-	public func getLogEntries(types: [LogType]? = nil) -> [LogEntry]
-	{
-		if types == nil
-		{
-			return logEntries
-		}
-		else
-		{
-			var filteredEntries = [LogEntry]()
-			if let filteredTypes = types
-			{
-				for nextEntry in logEntries
-				{
-					if filteredTypes.contains(nextEntry.logType)
-					{
-						filteredEntries.append(nextEntry)
-					}
-				}
-			}
-			return filteredEntries
-		}
+		//logEntries.append(entry)
 	}
 
 	private func formatEntry(_ entry: LogEntry, detailLevel: LogOutputDetail) -> String

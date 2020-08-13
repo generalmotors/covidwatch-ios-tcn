@@ -1,6 +1,5 @@
 //
 //  CALayer+Shadow.m
-//  GMOPluginGarage
 //
 //  Created by Christopher McGraw on 5/12/17.
 //

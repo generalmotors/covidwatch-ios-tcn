@@ -10,7 +10,10 @@ This document is focused on the implementation of the iOS version of the Contact
 - Allows users to send contact data back to a centralized source if they tested positive for COVID-19
 - Proactively alerts a user if the user is in proximity to another user (both users must have the app running for detection)
 - Displays key statistics to the user regarding daily interactions
-- iBeacon support for iOS -> Android and iOS -> iOS interactions
+- Adds an iBeacon and Location service to run the application continuously in the background  
+- Adds iBeacon registration and associated iBeacon identifier with TCN 
+- Device model-to-model distance calibration and profiling to augment distance detection and alerting. 
+- Offers a seamless UX to complete all of the above! 
 
 ## Application Flow
 ![Application Flow](./media/application-flow.png)
@@ -28,7 +31,7 @@ We are using the following dependences:
 
 Be sure to update to the lastest stable version of Xcode. 
 
-Clone this repo from the `master` branch:
+Clone this repo from the `dev` branch:
 
 Open the project in Xcode:
 
@@ -37,8 +40,6 @@ sudo gem install cocoapods
 ```
 ```
 pod install
-```
-
 ```
 brew install swiftlint
 ```

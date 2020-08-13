@@ -163,7 +163,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             actionsAfterLoading()
 =======
-// 05-14-20 - EGC - Transitioning from CovidWatch workflow to Company specific workflow
+// 05-14-20 - EGC - Transitioning from CovidWatch workflow to GM workflow
 //            actionsAfterLoading()
 			if let centralManagerIdentifiers = launchOptions?[UIApplication.LaunchOptionsKey.bluetoothCentrals]
 			{

@@ -1,23 +1,17 @@
 /*******************************************************************************
 * MainScreenViewController.swift
 *
-* Description:	This file contains the view controller for the main screen
 * Author:			Eric Crichlow
-* Version:			1.0
-********************************************************************************
-*	05/13/20		*	EGC	*	File creation date
-*******************************************************************************/
+*/
 
 import UIKit
 import CoreData
 
-class MainScreenViewController: UIViewController, OverlayViewCallbackDelegate, ContactManagerDelegate
+class MainScreenViewController: UIViewController, ContactManagerDelegate
 {
 
     @IBOutlet weak var statusLabel: UILabel!
 	@IBOutlet weak var statusDetailLabel: UILabel!
-	@IBOutlet weak var elapsedTimeLabel: UILabel!
-	@IBOutlet weak var distanceLabel: UILabel!
 	@IBOutlet weak var statusImageView: UIImageView!
 	@IBOutlet weak var positiveTestSlider: UISlider!
     @IBOutlet weak var pageControl: UIPageControl!
@@ -28,20 +22,15 @@ class MainScreenViewController: UIViewController, OverlayViewCallbackDelegate, C
     @IBOutlet weak var headerView: UIView!
     @IBOutlet var headerViewBottomConstraint: NSLayoutConstraint!
 	@IBOutlet weak var registerBeaconButton: UIButton!
+    @IBOutlet weak var calibrateInteractionButton: UIButton!
 	
-	static let registerContactEndpointString = "/v1/contacts"
+    @IBOutlet weak var modelLabel: UILabel!
+    @IBOutlet weak var debugLabel: UILabel!
 
 	// Overlays
-	var debuggingOverlay: ViewOverlay?
-	var logTextView: UITextView?
-	var logUpdateTimer: Timer?
-	var lastLogEntryArray = [LogEntry]()
-	var logString = ""
-	var pauseResumeButton: UIButton!
 
 	var interactionStart: Date?
 	var interactions = [[String: [String: Any]]]()
-	var currentInteractions: [[String: [String: Any]]]?		// Temp storage for when we switch to viewing all interactions
     
     var testLastSubmittedDateObserver: NSKeyValueObservation?
     var mostRecentExposureDateObserver: NSKeyValueObservation?
@@ -51,6 +40,8 @@ class MainScreenViewController: UIViewController, OverlayViewCallbackDelegate, C
     var currentUserExposureNotifier: CurrentUserExposureNotifier?
     let globalState = UserDefaults.shared
     var observer: NSObjectProtocol?
+    var dist: Double?
+    var detectedDeviceId: UInt32 = 0
     
     var currentStatusTooClose = false
 
@@ -61,9 +52,8 @@ class MainScreenViewController: UIViewController, OverlayViewCallbackDelegate, C
     override func viewDidLoad()
     {
         super.viewDidLoad()
-//        #if !PRODUCTION
-//		setupOverlays()
-//        #endif
+        self.debugLabel.isHidden = true
+
 		ContactManager.sharedManager.registerDelegate(delegate: self)
 		ContactManager.sharedManager.configureContactTracingService()
         
@@ -71,9 +61,6 @@ class MainScreenViewController: UIViewController, OverlayViewCallbackDelegate, C
         self.signedReportsUploader = SignedReportsUploader()
         self.currentUserExposureNotifier = CurrentUserExposureNotifier()
     
-        
-		self.elapsedTimeLabel.isHidden = true
-		self.distanceLabel.isHidden = true
 		positiveTestSlider.addTarget(self, action: #selector(MainScreenViewController.reportPositiveTest), for: UIControl.Event.valueChanged)
 
         mostRecentExposureDateObserver = globalState.observe(
@@ -108,9 +95,53 @@ class MainScreenViewController: UIViewController, OverlayViewCallbackDelegate, C
 
 	// MARK: Business Logic
 
+	@IBAction func runPreCheck(_ sender: UIButton)
+	{
+		if let websiteURL = URL(string: AppConfigurationManager.preCheckDefaultURL)
+		{
+			if UIApplication.shared.canOpenURL(websiteURL)
+			{
+				UIApplication.shared.open(websiteURL, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
+			}
+		}
+	}
+    //send interaction calibration data to back end
+    @IBAction func sendInteractionData(_ sender: UIButton)
+    {
+        let dialogMessage = UIAlertController(title: "Confirm Physical Distance", message: "Are you are physically 7ft away from the detected contact for this calibration? If not, press \"Cancel\" and try again.", preferredStyle: .alert)
+        
+        // Create Yes button with action handler
+        let yes = UIAlertAction(title: "Yes", style: .default, handler: { (action) -> Void in
+            
+            let deviceModelNumber = ProfileMapping.shared.deviceModelNumber
+            if let distance = self.dist {
+                let submitCalibrationDataRequest = SubmitCalibrationDataRequest(deviceModel: Int(deviceModelNumber)!, contactDeviceModel: Int(self.detectedDeviceId), distanceDetected: distance)
+                Network.request(router: submitCalibrationDataRequest) { (result: Result<SubmitCalibrationDataModel, Error>) in
+                    guard case .success(_) = result else { return }
+                    do {
+                        let interactionId = try result.get().interactionId
+                        LogManager.sharedManager.writeLog(entry: LogEntry(source: self, level: .info, message: "Posted Calibration Data to back end with Id: \(interactionId)"))
+                    } catch {
+                        LogManager.sharedManager.writeLog(entry: LogEntry(source: self, level: .error, message: "Error posting Calibration Data"))
+                    }
+                }
+            }
+        })
+        
+        // Create Cancel button with action handlder
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) -> Void in
+            
+        }
+        //Add OK and Cancel button to dialog message
+        dialogMessage.addAction(yes)
+        dialogMessage.addAction(cancel)
+        
+        // Present dialog message to user
+        self.present(dialogMessage, animated: true, completion: nil)
+    }
+
 	@IBAction func registerBeacon(_ sender: UIButton)
 	{
-//		self.performSegue(withIdentifier: "registerBeaconSegue", sender: self)
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)
 		let registerBeaconViewController = storyboard.instantiateViewController(withIdentifier: "RegisterBeaconViewController") as! RegisterBeaconViewController
 		modalPresentationStyle = .currentContext
@@ -119,96 +150,49 @@ class MainScreenViewController: UIViewController, OverlayViewCallbackDelegate, C
 			self.present(registerBeaconViewController, animated: true, completion: nil)
 		}
 	}
-	
-	private func setupOverlays()
-	{
 
-		debuggingOverlay = ViewOverlay(forParentViewController: self, with: ViewOverlayTabPosition.rightEdgeCenter, contentType: ViewOverlayType.list, andTitle: "Debug")
-		debuggingOverlay?.tabBackgroundColor = AppConfigurationManager.debuggingTabBackgroundColor
-		debuggingOverlay?.tabTitleColor = AppConfigurationManager.debuggingTabTitleColor
-		debuggingOverlay?.contentBackgroundColor = AppConfigurationManager.debuggingTabContentBackgroundColor
-		debuggingOverlay?.delegate = self
-		debuggingOverlay?.show()
-
-		if let loggingContent = debuggingOverlay?.contentView
-		{
-			let contentFrame = loggingContent.frame
-			let buttonBufferArea = Int((contentFrame.size.width - (CGFloat(AppConfigurationManager.debuggingClearButtonWidth + AppConfigurationManager.debuggingPauseButtonWidth))) / 3)
-			let clearButton = UIButton(frame: CGRect(x: buttonBufferArea, y: Int(contentFrame.size.height) - AppConfigurationManager.debuggingContentMarginHeight - AppConfigurationManager.debuggingClearButtonHeight, width: AppConfigurationManager.debuggingClearButtonWidth, height: AppConfigurationManager.debuggingClearButtonHeight))
-			pauseResumeButton = UIButton(frame: CGRect(x: buttonBufferArea * 2 + AppConfigurationManager.debuggingClearButtonWidth, y: Int(contentFrame.size.height) - AppConfigurationManager.debuggingContentMarginHeight - AppConfigurationManager.debuggingPauseButtonHeight, width: AppConfigurationManager.debuggingPauseButtonWidth, height: AppConfigurationManager.debuggingPauseButtonHeight))
-			logTextView = UITextView(frame: CGRect(x: 0, y: 0, width: Int(contentFrame.size.width), height: Int(contentFrame.size.height) - (AppConfigurationManager.debuggingContentMarginHeight * 2 + AppConfigurationManager.debuggingClearButtonHeight)))
-			clearButton.backgroundColor = AppConfigurationManager.debuggingClearButtonBackgroundColor
-			clearButton.setTitleColor(AppConfigurationManager.debuggingClearButtonTextColor, for: .normal)
-			clearButton.setTitle(NSLocalizedString("Clear", comment: ""), for: .normal)
-			clearButton.addTarget(self, action: #selector(MainScreenViewController.clearLogs), for: .touchUpInside)
-			pauseResumeButton.backgroundColor = AppConfigurationManager.debuggingPauseButtonBackgroundColor
-			pauseResumeButton.setTitleColor(AppConfigurationManager.debuggingPauseButtonTextColor, for: .normal)
-			pauseResumeButton.setTitle(NSLocalizedString("Pause", comment: ""), for: .normal)
-			pauseResumeButton.addTarget(self, action: #selector(MainScreenViewController.pauseResumeLogs), for: .touchUpInside)
-			logTextView?.backgroundColor = AppConfigurationManager.debuggingTabContentBackgroundColor
-			logTextView?.textColor = AppConfigurationManager.debuggingLogTextColor
-			logTextView?.layoutManager.allowsNonContiguousLayout = false
-			loggingContent.addSubview(clearButton)
-			loggingContent.addSubview(pauseResumeButton)
-			loggingContent.addSubview(logTextView!)
-		}
-	}
-
-	private func configureStatusDisplay(distance: Double?)
+    private func configureStatusDisplay(distance: Double?, contactMinDistance: Double, deviceId: UInt32)
 	{
         updateInteractionLabels()
+        detectedDeviceId = deviceId;
+        let deviceModelName = ProfileMapping.shared.deviceModelName(deviceId: deviceId)
+        self.dist = distance
 		DispatchQueue.main.async
 		{
-			guard let dist = distance
+            guard let dist = distance
 				else
 				{
 					let attributedStatusString = NSMutableAttributedString.init(string: "SAFE")
                     attributedStatusString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "Safe Color")!, range: NSRange.init(location: 0, length: attributedStatusString.length))
 					self.statusLabel.attributedText = attributedStatusString
 					self.statusDetailLabel.text = "No people detected nearby"
-					self.elapsedTimeLabel.isHidden = true
-					self.distanceLabel.isHidden = true
 					self.statusImageView.image = UIImage(named: "SafeIcon")
+                    self.modelLabel.text = ""
+                    #if PILOT
+                    self.debugLabel.isHidden = true
+                    #endif
 					return
 				}
-//			if dist <= AppConfigurationManager.contactMinDistanceDangerZone
-			if dist <= AppConfigurationManager.contactMinDistanceDangerZoneInFeet
+			if dist <= contactMinDistance
 			{
 				let attributedStatusString = NSMutableAttributedString.init(string: "TOO CLOSE")
                 attributedStatusString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "Too Close Color")!, range: NSRange.init(location: 0, length: attributedStatusString.length))
 				self.statusLabel.attributedText = attributedStatusString
 				self.statusDetailLabel.text = "People detected in your space"
-				self.elapsedTimeLabel.isHidden = false
-				self.distanceLabel.isHidden = false
 				self.statusImageView.image = UIImage(named: "TooClose")
+                self.modelLabel.text = "Detected Model: \(deviceModelName)"
 				self.currentStatusTooClose = true
-				if let start = self.interactionStart
-				{
-					let timeElapsed = Date().timeIntervalSince(start)
-					let hours = Int(timeElapsed / 3600)
-					let minutes = Int((Int(timeElapsed) - (hours * 3600)) / 60)
-					let seconds = Int(Int(timeElapsed) - (hours * 3600 + minutes * 60))
-					self.elapsedTimeLabel.text = String(format:"Elapsed Interaction Time: %02d:%02d:%02d", hours, minutes, seconds)
-					self.distanceLabel.text = String(format:"Debug current distance: %f", dist)
-				}
+                #if PILOT
+                self.debugLabel.isHidden = false
+                self.debugLabel.text = "Min Dist: \(Int(contactMinDistance))   Dist: \(String(format:"%.2f", dist))"
+                #endif
+                
 			}
 			// Because of how flaky distance reporting is, once we determine contact is too close, expand range
 			// they have to leave before we consider them not too close anymore
-//			else if self.currentStatusTooClose && dist < AppConfigurationManager.contactMinDistanceExitDangerZone
-			else if self.currentStatusTooClose && dist < AppConfigurationManager.contactMinDistanceExitDangerZoneInFeet
+            else if self.currentStatusTooClose && dist < (contactMinDistance + 5.0)
 			{
 				return
-			}
-//			else if AppConfigurationManager.supportWarningZone && dist <= AppConfigurationManager.contactMinDistanceWarningZone
-			else if AppConfigurationManager.supportWarningZone && dist <= AppConfigurationManager.contactMinDistanceWarningZoneInFeet
-			{
-				let attributedStatusString = NSMutableAttributedString.init(string: "GETTING CLOSE")
-                attributedStatusString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor(named: "Button Color")!, range: NSRange.init(location: 0, length: attributedStatusString.length))
-				self.statusLabel.attributedText = attributedStatusString
-				self.statusDetailLabel.text = "People detected nearby"
-				self.elapsedTimeLabel.isHidden = true
-				self.distanceLabel.isHidden = true
-				self.statusImageView.image = UIImage(named: "GettingCloseIcon")
 			}
 			else
 			{
@@ -216,101 +200,12 @@ class MainScreenViewController: UIViewController, OverlayViewCallbackDelegate, C
 				attributedStatusString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.green, range: NSRange.init(location: 0, length: attributedStatusString.length))
 				self.statusLabel.attributedText = attributedStatusString
 				self.statusDetailLabel.text = "No people detected nearby"
-				self.elapsedTimeLabel.isHidden = true
-				self.distanceLabel.isHidden = true
 				self.statusImageView.image = UIImage(named: "SafeIcon")
+                self.modelLabel.text = ""
 				self.currentStatusTooClose = false
-			}
-		}
-	}
-
-	func overlayViewDisplayed(_ title: String!)
-	{
-		if title == "Debug"
-		{
-			logUpdateTimer = Timer.scheduledTimer(withTimeInterval: AppConfigurationManager.debuggingLogDisplayUpdateDelay, repeats: true)
-			{
-				timer in
-				let logManager = LogManager.sharedManager
-				let logEntries = logManager.getLogEntries()
-				let differential = logEntries.count - self.lastLogEntryArray.count
-				if differential > 0
-				{
-					for index in self.lastLogEntryArray.count..<logEntries.count
-					{
-						let nextEntry = logEntries[index]
-						self.lastLogEntryArray.append(nextEntry)
-						self.logString.append(nextEntry.logMessage + "\n\n")
-					}
-					DispatchQueue.main.async
-					{
-						self.logTextView?.text = self.logString
-						let stringLength:Int = self.logTextView!.text.count
-						self.logTextView?.scrollRangeToVisible(NSMakeRange(stringLength-1, 0))
-					}
-				}
-			}
-		}
-	}
-
-	func overlayViewContracted(_ title: String!)
-	{
-		if let logTimer = logUpdateTimer
-		{
-			logTimer.invalidate()
-			logUpdateTimer = nil
-		}
-	}
-
-	@objc func clearLogs()
-	{
-		LogManager.sharedManager.clearLogs()
-		self.lastLogEntryArray.removeAll()
-		DispatchQueue.main.async
-		{
-			self.logTextView?.text = ""
-		}
-	}
-
-	@objc func pauseResumeLogs()
-	{
-
-		if let timer = logUpdateTimer
-		{
-			timer.invalidate()
-			logUpdateTimer = nil
-			DispatchQueue.main.async
-			{
-				self.pauseResumeButton.setTitle(NSLocalizedString("Resume", comment: ""), for: .normal)
-			}
-		}
-		else
-		{
-			logUpdateTimer = Timer.scheduledTimer(withTimeInterval: AppConfigurationManager.debuggingLogDisplayUpdateDelay, repeats: true)
-			{
-				timer in
-				let logManager = LogManager.sharedManager
-				let logEntries = logManager.getLogEntries()
-				let differential = logEntries.count - self.lastLogEntryArray.count
-				if differential > 0
-				{
-					for index in self.lastLogEntryArray.count..<logEntries.count
-					{
-						let nextEntry = logEntries[index]
-						self.lastLogEntryArray.append(nextEntry)
-						self.logString.append(nextEntry.logMessage + "\n\n")
-					}
-					DispatchQueue.main.async
-					{
-						self.logTextView?.text = self.logString
-						let stringLength:Int = self.logTextView!.text.count
-						self.logTextView?.scrollRangeToVisible(NSMakeRange(stringLength-1, 0))
-					}
-				}
-			}
-			DispatchQueue.main.async
-			{
-				self.pauseResumeButton.setTitle(NSLocalizedString("Pause", comment: ""), for: .normal)
+                #if PILOT
+                self.debugLabel.isHidden = true
+                #endif
 			}
 		}
 	}
@@ -384,19 +279,19 @@ class MainScreenViewController: UIViewController, OverlayViewCallbackDelegate, C
         return partialResult + contactTime
     }
 
-	func contactInRange(estimatedDistance: Double)
+    func contactInRange(estimatedDistance: Double, contactMinDistance: Double, deviceId: UInt32)
 	{
 		if interactionStart == nil
 		{
 			interactionStart = Date()
 		}
-		configureStatusDisplay(distance: estimatedDistance)
+        configureStatusDisplay(distance: estimatedDistance, contactMinDistance: contactMinDistance, deviceId: deviceId)
 	}
 
 	func contactsLeftRange()
 	{
 		interactionStart = nil
-		configureStatusDisplay(distance: nil)
+        configureStatusDisplay(distance: nil, contactMinDistance: 0.0, deviceId: UInt32(0))
 	}
 
 	// Helper function inserted by Swift 4.2 migrator.

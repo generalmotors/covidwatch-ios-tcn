@@ -7,6 +7,7 @@
  *						implementation file
  * Author:			Eric Crichlow
  * Version:			1.0
+ * Copyright:		(c) 2015 Infusions of Grandeur. All rights reserved.
  ********************************************************************************
  *	08/30/15		*	EGC	*	File creation date
  *******************************************************************************/

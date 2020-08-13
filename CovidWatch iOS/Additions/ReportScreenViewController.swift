@@ -20,7 +20,12 @@ class ReportScreenViewController: UIViewController {
     }
 
     @IBAction func dialMedicalPress(_ sender: UIButton) {
-        print("Hello world")
+        //Dial Medical
+    }
+    
+    @IBAction func cancel(_ sender: UIButton)
+    {
+        self.navigationController?.popViewController(animated: true)
     }
     
     @IBAction func sendInteractionsPress(_ sender: UIButton) {

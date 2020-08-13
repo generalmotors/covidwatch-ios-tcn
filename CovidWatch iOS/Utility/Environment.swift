@@ -30,7 +30,7 @@ func getLocalFirebaseHost() -> String {
 }
 
 func getAPIUrl(_ scheme: AppScheme) -> String {
-    return "https://us-central1-tagstwo-431e3.cloudfunctions.net"
+    return "https://us-central1-covid2020-c4386.cloudfunctions.net"
 }
 
 func getAppScheme() -> AppScheme {

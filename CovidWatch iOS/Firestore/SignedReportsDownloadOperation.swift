@@ -21,7 +21,9 @@ class SignedReportsDownloadOperation: Operation {
     }
     
     override func main() {
+        
         let semaphore = DispatchSemaphore(value: 0)
+        ProfileMapping.shared.downloadProfiles()
         LogManager.sharedManager.writeLog(entry: LogEntry(source: self, message: "Downloading signed reports..."))
         self.db.collection(Firestore.Collections.signedReports)
             .whereField(Firestore.Fields.timestamp, isGreaterThan: Timestamp(date: self.sinceDate))

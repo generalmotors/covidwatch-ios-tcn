@@ -1,14 +1,7 @@
 /*******************************************************************************
 * InteractionTableViewCell.swift
-*
-* Title:			Contact Tracing
-* Description:		Contact Tracing Monitoring and Reporting App
-*						This file contains the cell for displaying interactions
 * Author:			Eric Crichlow
-* Version:			1.0
-********************************************************************************
-*	05/15/20		*	EGC	*	File creation date
-*******************************************************************************/
+*/
 
 import UIKit
 

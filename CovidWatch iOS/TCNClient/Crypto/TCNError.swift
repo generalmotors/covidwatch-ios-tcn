@@ -18,5 +18,7 @@ public enum TCNError: Error {
     
     /// An oversized memo field was supplied when creating a report.
     case OversizeMemo(Int)
+    
+    case NotFound
         
 }

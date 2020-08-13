@@ -37,34 +37,15 @@
 	<key>LocalIP</key>
 	<string></string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Contact Tracing uses Bluetooth to monitor distance to other employees to warn you of danergous contacts, even when app is in the background</string>
+	<string>Contact Tracing uses Bluetooth to monitor distance to other employees to warn you of close contacts, even when app is in the background</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Contact Tracing uses Bluetooth to monitor distance to other employees to warn you of danergous contacts</string>
+	<string>Contact Tracing uses Bluetooth to monitor distance to other employees to warn you of too close contacts</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Contact Tracing uses location to monitor possible contacts with problematic users</string>
+	<string>Contact Tracing uses location to monitor social distance between employees using BLE/Beacon. Location info is not tracked.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Contact Tracing uses location to monitor possible contacts with problematic users</string>
+	<string>Contact Tracing uses location to monitor social distance between employees using BLE/Beacon. Location info is not tracked.</string>
 	<key>SchemeName</key>
 	<string>covidwatch-ios-prod</string>
-	<key>UIAppFonts</key>
-	<array>
-		<string>⁨GM Global Sans Black Italic.ttf</string>
-		<string>GM Global Sans Black.ttf</string>
-		<string>GM Global Sans Bold Italic.ttf</string>
-		<string>GM Global Sans Bold.ttf</string>
-		<string>GM Global Sans ExtraBold Italic.ttf</string>
-		<string>GM Global Sans ExtraBold.ttf</string>
-		<string>GM Global Sans ExtraLight Italic.ttf</string>
-		<string>GM Global Sans ExtraLight.ttf</string>
-		<string>GM Global Sans Light Italic.ttf</string>
-		<string>GM Global Sans Light.ttf</string>
-		<string>GM Global Sans Plain Italic.ttf</string>
-		<string>GM Global Sans Plain.ttf</string>
-		<string>GM Global Sans SemiBold Italic.ttf</string>
-		<string>GM Global Sans SemiBold.ttf</string>
-		<string>GM Global Sans SemiLight Italic.ttf</string>
-		<string>GM Global Sans SemiLight.ttf</string>
-	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>

@@ -20,13 +20,22 @@ class Network: NSObject {
                 completion(.failure(error))
                 return
             }
-
-            guard let data = data, let responseData = try? JSONDecoder().decode(T.self, from: data) else {
-                completion(.failure(TCNError.IO))
-                return
+            
+            if let data = data {
+                do {
+                    let responseData = try JSONDecoder().decode(T.self, from: data)
+                    completion(.success(responseData))
+                } catch{
+                    do{
+                        if let newData = data as? T {
+                            completion(.success(newData))
+                        } else {
+                            completion(.failure(error))
+                        }
+                    }
+                }
             }
-
-            completion(.success(responseData))
+            
         }
         dataTask.resume()
     }
